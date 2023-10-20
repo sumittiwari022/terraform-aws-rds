@@ -11,10 +11,32 @@ resource "aws_ssm_parameter" "rds_db_password" {
   }
 }
 
+resource "aws_ssm_parameter" "rds_prod_db_password" {
+  count       = var.secret_method == "ssm" ? 1 : 0
+  name        = "/${var.environment}/RDS/PROD_PASSWORD"
+  description = "RDS prod Password"
+  type        = "SecureString"
+  key_id      = var.ssm_kms_key_id
+  value       = random_string.rds_db_password.result
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
 resource "aws_ssm_parameter" "rds_db_user" {
   count       = var.secret_method == "ssm" ? 1 : 0
   name        = "/${var.environment}/RDS/USER"
   description = "RDS User"
+  type        = "SecureString"
+  key_id      = var.ssm_kms_key_id
+  value       = var.create_rds == true ? aws_db_instance.rds_db[0].username : aws_rds_cluster.aurora_cluster[0].master_username
+}
+
+resource "aws_ssm_parameter" "rds_prod_user" {
+  count       = var.secret_method == "ssm" ? 1 : 0
+  name        = "/${var.environment}/RDS/PROD_USER"
+  description = "RDS prod User"
   type        = "SecureString"
   key_id      = var.ssm_kms_key_id
   value       = var.create_rds == true ? aws_db_instance.rds_db[0].username : aws_rds_cluster.aurora_cluster[0].master_username
