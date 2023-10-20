@@ -19,7 +19,7 @@ variable "max_allocated_storage" {
 variable "storage_type" {
   type        = string
   description = "The instance storage type"
-  default     = "gp2"
+  default     = "gp3"
 }
 
 variable "iops" {
